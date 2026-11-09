@@ -467,7 +467,7 @@ class Acosh(Function):
         z = th.clamp(z, min=ctx.eps)
         z = g / z
         return z, None
-#################################################
+
 class GCNLayer(nn.Module):
     def __init__(self, input_dim: int, output_dim: int,A:torch.Tensor):
         super(GCNLayer, self).__init__()
@@ -710,7 +710,7 @@ class SSConv1(nn.Module):
 #         # x = x.reshape(C, height, width, channle)   # [1,145,145,c]
 #         # # print(x.size())
 #         # proj_query = x.view(C, channle, height*width)
-#         # proj_key = x.view(C, height*width, channle) #形状转换并交换维度
+#         # proj_key = x.view(C, height*width, channle) 
 #         # energy = torch.bmm(proj_key,proj_query)
 #         # energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
 #         # attention = self.softmax(energy_new)   # [h,h]
@@ -1081,7 +1081,6 @@ class HCGN(nn.Module):
         clean_x = noise  # shape: [B, H, W, C]
 
 
-           # 你原来的写法是把 batch 放掉。暂时只处理 batch[0]，如需全部处理可以批量
         clean_x_0 = clean_x[0]                       # [H, W, C]
         clean_x_flatten = clean_x_0.reshape(h * w, -1)   # [h*w, c]
 
@@ -1108,6 +1107,8 @@ class HCGN(nn.Module):
             for i in range(len(self.GCN_Branch1)): H1, _ = self.GCN_Branch1[i](H1,model='smoothed')
             for i in range(len(self.GCN_Branch2)): H2, _ = self.GCN_Branch2[i](H2,model='smoothed')
             for i in range(len(self.GCN_Branch)): H, _ = self.GCN_Branch[i](H,model='smoothed')
+        H, H1, H2 = [manifold.logmap0(x)
+             for x in (H, H1, H2)]
 
         GCN_result = torch.matmul(self.Q, H)
         GCN_result1 = torch.matmul(self.Q1, H1)
